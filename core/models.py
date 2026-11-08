@@ -1,8 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 
 @dataclass
-class MeshData():
+class MeshData:
     """
     Хранит геометрические данные
     """
@@ -41,3 +41,39 @@ class MeshData():
 
             if np.any(self.faces >= len(self.vertices)):
                 raise ValueError("Грань ссылается на несуществующую вершину")
+
+
+class Transform:
+    """Положение, вращение и масштаб объекта."""
+    position: np.ndarray = field(
+        default_factory=lambda: np.zeros(3, dtype=np.float64)
+    )
+
+    rotation: np.ndarray = field(
+        default_factory=lambda: np.zeros(3, dtype=np.float64)
+    )
+
+    scale: np.ndarray = field(
+        default_factory=lambda: np.ones(3, dtype=np.float64)
+    )
+
+    def __post_init__(self):
+        self.position = self._prepare_vector(self.position, "position")
+        self.rotation = self._prepare_vector(self.rotation, "rotation")
+        self.scale = self._prepare_vector(self.scale, "scale")
+
+        if np.any(self.scale == 0):
+            raise ValueError("Масштаб не может быть равен нулю")
+
+
+    @staticmethod
+    def _prepare_vector(value, name):
+        vector = np.asarray(value, dtype=np.float64)
+
+        if vector.shape != (3,):
+            raise ValueError(f"{name} должен содержать три значения")
+
+        if not np.all(np.isfinite(vector)):
+            raise ValueError(f"{name} должен содержать конечные значения")
+
+        return vector.copy()
