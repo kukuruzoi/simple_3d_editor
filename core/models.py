@@ -77,3 +77,15 @@ class Transform:
             raise ValueError(f"{name} должен содержать конечные значения")
 
         return vector.copy()
+
+
+@dataclass
+class SceneObject:
+    """Объект, размещённый в трёхмерной сцене."""
+
+    mesh: MeshData
+    name: str
+    transform: Transform = field(default_factory=Transform)
+    object_id: str = field(
+        default_factory=lambda: str(uuid4())
+    )
